@@ -1,0 +1,66 @@
+@page "/customer/create"
+@using Demo.Data.Models;
+@inject CustomerService customerService;
+@inject NavigationManager NavigationManager;
+
+<h1>Create new Customer</h1>
+
+<hr>
+
+@if(alert == "show"){
+  <div class="alert alert-warning alert-dismissible fade @alert" role="alert">
+   Customer Added successfully
+    <button type="button" @onclick="closeAlert" class="btn-close" aria-label="Close"></button>
+  </div>
+}
+
+<EditForm Model="customer" OnValidSubmit="HandleValidSubmit">
+
+   @*   <ValidationSummary /> *@
+     <DataAnnotationsValidator />
+
+        <div class="row mb-3">
+            <label  class="form-label" for="@nameof(customer.Name)">@nameof(customer.Name)</label>
+            <InputText class="form-control" id="@nameof(customer.Name)" @bind-Value="customer.Name" />
+            <ValidationMessage For="@(() => customer.Name)" />
+        </div>
+
+        <div class="row mb-3">
+            <label class="form-label" for="@nameof(customer.Age)">@nameof(customer.Age)</label>
+            <InputNumber class="form-control" id="@nameof(customer.Age)" @bind-Value="customer.Age" />
+            <ValidationMessage For="@(() => customer.Age)" />
+        </div>
+
+          <div class="row mb-3">
+            <button class="btn btn-primary" type="submit">Submit</button>
+          </div>
+
+</EditForm>
+
+@code{
+    Customer customer = new();
+
+    private String alert { get; set; } = "d-none";
+
+
+
+    private void HandleValidSubmit(EditContext editContext){
+            var newCustomer = (Customer)editContext.Model;
+            newCustomer.CreatedAt = DateTime.Now;
+            customerService.AddCustomer(newCustomer);
+            newCustomer = new Customer();
+
+            @* Clear Forms *@
+            customer = new(); 
+
+            alert = "show";
+
+            NavigationManager.NavigateTo("/customer/index");
+
+    }
+
+    public void closeAlert(){
+        alert = "";
+    }
+
+}
